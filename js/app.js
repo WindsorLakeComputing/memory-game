@@ -47,62 +47,63 @@ function shuffle(array) {
  *    + if all cards have matched, display a message with the final score (put this functionality in another function that you call from this one)
  */
 
- function flipCard(card) {
-    if(! card.getElementsByTagName("i")[0].parentElement.className.includes("match")){
-    if(openedCards.length == 0){
-        openedCards.push(card)
-        card.className += " show open";
-    }
-    else if(openedCards.length == 1){
-        openedCard = openedCards.pop(); 
-        console.log("openedCard == ", openedCard)
-        console.log("[0].className.parentElement", openedCard.getElementsByTagName("i")[0].parentElement)
-         //openedCard.getElementsByTagName("i")[0].parentElement.classList.remove("open", "show");
-         //card.getElementsByTagName("i")[0].parentElement.classList.remove("open", "show");
-         numMoves += 1;
-         movesElement.innerHTML = numMoves;
-        if(openedCard.getElementsByTagName("i")[0].className == card.getElementsByTagName("i")[0].className){
-            openedCard.removeEventListener('click', flipCard);
-            //card.getElementsByTagName("i")[0].removeEventListener('click', function, false);
-            openedCard.getElementsByTagName("i")[0].parentElement.classList.remove("open", "show");
-            card.getElementsByTagName("i")[0].parentElement.classList.remove("open", "show");
-            openedCard.getElementsByTagName("i")[0].parentElement.className += " match"
-            card.getElementsByTagName("i")[0].parentElement.className += " match"
-            console.log("It's a MATCH!!!!")
-            openedCards.length = 0;
-            if(deck.getElementsByClassName("match").length == 16){
-                console.log("deck.getElementsByClassName().className.length")
-                console.log(deck.getElementsByClassName("match").length)
-                finishedGame.style.display = "block";
+function touchCard(card) {
+    let currentCardElem = card.getElementsByTagName("i")[0];
+    if (!currentCardElem.parentElement.className.includes("match")) {
+        if (openedCards.length == 0) {
+            flipFrstCard(card)
+        } else if (openedCards.length == 1) {
+            openedCard = flipScndCard()
+            let openedCardElem = openedCard.getElementsByTagName("i")[0];
 
+            if (openedCardElem.className == currentCardElem.className) {
+                handleCardsMatch(card, openedCard);
+            } else {
+                card.className += " show open";
+                setTimeout(function() {
+                    card.classList.remove("open", "show");
+                    openedCard.classList.remove("open", "show")
+                }, 250);
             }
         }
-        else{
-            card.className += " show open";
-            setTimeout(function(){ 
-                card.classList.remove("open", "show"); 
-                openedCard.classList.remove("open", "show")
-            }, 250);
-
-            
-            console.log("moves: ", numMoves);
-            
-            //openedCard.remove("open", "show")
-            //card.remove("open", "show")
-        }
-        //openCards.length = 0;
-
     }
-    
-    
-    console.log("This element was clicked: ", card)
-    
-    console.log("The OPEN cards are ", openedCards)
- }
-
 }
 
+function flipFrstCard(card) {
+    openedCards.push(card)
+    card.className += " show open";
+}
 
+function flipScndCard() {
+    openedCard = openedCards.pop();
+    numMoves += 1;
+    movesElement.innerHTML = numMoves;
+
+    return openedCard;
+}
+
+function handleCardsMatch(card, openedCard) {
+    let openedCardElem = openedCard.getElementsByTagName("i")[0];
+    let currentCardElem = card.getElementsByTagName("i")[0];
+    openedCard.removeEventListener('click', touchCard);
+    changeClassNameMatch(openedCardElem, currentCardElem)
+
+    openedCards.length = 0;
+    if (deck.getElementsByClassName("match").length == 16) {
+        displayEndOfGame();
+    }
+}
+
+function changeClassNameMatch(openedCardElem, currentCardElem) {
+    openedCardElem.parentElement.classList.remove("open", "show");
+    currentCardElem.parentElement.classList.remove("open", "show");
+    openedCardElem.parentElement.className += " match"
+    currentCardElem.parentElement.className += " match"
+}
+
+function displayEndOfGame() {
+    finishedGame.style.display = "block";
+}
 
 function resetBoard() {
     finishedGame.style.display = "none";
@@ -112,10 +113,9 @@ function resetBoard() {
     }
     for (const card of cards) {
         card.classList.remove("match", "open", "show")
-        card.addEventListener("click", function(){
-        console.log("card.classList ",card.classList )
-        flipCard(card);
-    }, false);
+        card.addEventListener("click", function() {
+            touchCard(card);
+        }, false);
         deck.appendChild(card)
     }
 }

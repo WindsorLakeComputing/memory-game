@@ -33,6 +33,11 @@ h1 {
     font-weight: 300;
 }
 
+#finishedGame { 
+  background-color: red;
+  color: blue;
+}
+
 /*
  * Styles for the deck of cards
  */
