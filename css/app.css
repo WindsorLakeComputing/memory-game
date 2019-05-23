@@ -33,8 +33,7 @@ h1 {
     font-weight: 300;
 }
 
-#finishedGame { 
-  background-color: red;
+#timer { 
   color: blue;
 }
 

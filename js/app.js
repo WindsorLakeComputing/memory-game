@@ -5,12 +5,11 @@ let restart = document.getElementsByClassName("restart");
 let deck = document.getElementsByClassName("deck")[0];
 let cards = deck.getElementsByTagName("li");
 let openedCards = [];
-let movesElement = document.getElementsByClassName("moves")[0]
+let movesElement = document.getElementsByClassName("moves")[0];
 let numMoves = 0;
 let finishedGame = document.getElementById("finishedGame");
-
+let time;
 restart[0].addEventListener("click", resetBoard);
-
 
 /*
  * Display the cards on the page
@@ -21,20 +20,20 @@ restart[0].addEventListener("click", resetBoard);
 
 // Shuffle function from http://stackoverflow.com/a/2450976
 function shuffle(array) {
-    let currentIndex = array.length,
-        temporaryValue, randomIndex;
+  let currentIndex = array.length,
+    temporaryValue,
+    randomIndex;
 
-    while (currentIndex !== 0) {
-        randomIndex = Math.floor(Math.random() * currentIndex);
-        currentIndex -= 1;
-        temporaryValue = array[currentIndex];
-        array[currentIndex] = array[randomIndex];
-        array[randomIndex] = temporaryValue;
-    }
+  while (currentIndex !== 0) {
+    randomIndex = Math.floor(Math.random() * currentIndex);
+    currentIndex -= 1;
+    temporaryValue = array[currentIndex];
+    array[currentIndex] = array[randomIndex];
+    array[randomIndex] = temporaryValue;
+  }
 
-    return array;
+  return array;
 }
-
 
 /*
  * set up the event listener for a card. If a card is clicked:
@@ -48,74 +47,135 @@ function shuffle(array) {
  */
 
 function touchCard(card) {
-    let currentCardElem = card.getElementsByTagName("i")[0];
-    if (!currentCardElem.parentElement.className.includes("match")) {
-        if (openedCards.length == 0) {
-            flipFrstCard(card)
-        } else if (openedCards.length == 1) {
-            openedCard = flipScndCard()
-            let openedCardElem = openedCard.getElementsByTagName("i")[0];
+  let currentCardElem = card.getElementsByTagName("i")[0];
+  if (!currentCardElem.parentElement.className.includes("match")) {
+    if (openedCards.length == 0) {
+      flipFrstCard(card);
+    } else if (openedCards.length == 1) {
+      openedCard = flipScndCard();
+      let openedCardElem = openedCard.getElementsByTagName("i")[0];
 
-            if (openedCardElem.className == currentCardElem.className) {
-                handleCardsMatch(card, openedCard);
-            } else {
-                card.className += " show open";
-                setTimeout(function() {
-                    card.classList.remove("open", "show");
-                    openedCard.classList.remove("open", "show")
-                }, 250);
-            }
-        }
+      if (checkCardsDifferentAndMatch(card, openedCard)) {
+        handleCardsMatch(card, openedCard);
+      } else {
+        card.className += " show open";
+        setTimeout(function() {
+          card.classList.remove("open", "show");
+          openedCard.classList.remove("open", "show");
+        }, 250);
+      }
     }
+  }
 }
 
 function flipFrstCard(card) {
-    openedCards.push(card)
-    card.className += " show open";
+  openedCards.push(card);
+  card.className += " show open";
 }
 
 function flipScndCard() {
-    openedCard = openedCards.pop();
-    numMoves += 1;
-    movesElement.innerHTML = numMoves;
+  openedCard = openedCards.pop();
+  numMoves += 1;
+  if (numMoves == 9 || numMoves == 16) {
+    let stars = document.getElementsByClassName("stars")[0];
+    stars.removeChild(stars.getElementsByTagName("li")[0]);
+  }
+  movesElement.innerHTML = numMoves;
 
-    return openedCard;
+  return openedCard;
+}
+
+function checkCardsDifferentAndMatch(card, openedCard) {
+  let currentCardElem = card.getElementsByTagName("i")[0];
+  let openedCardElem = openedCard.getElementsByTagName("i")[0];
+
+  if (
+    openedCardElem.className == currentCardElem.className &&
+    (card.getBoundingClientRect().x != openedCard.getBoundingClientRect().x ||
+      card.getBoundingClientRect().y != openedCard.getBoundingClientRect().y)
+  ) {
+    return true;
+  } else {
+    return false;
+  }
 }
 
 function handleCardsMatch(card, openedCard) {
-    let openedCardElem = openedCard.getElementsByTagName("i")[0];
-    let currentCardElem = card.getElementsByTagName("i")[0];
-    openedCard.removeEventListener('click', touchCard);
-    changeClassNameMatch(openedCardElem, currentCardElem)
+  let openedCardElem = openedCard.getElementsByTagName("i")[0];
+  let currentCardElem = card.getElementsByTagName("i")[0];
+  openedCard.removeEventListener("click", touchCard);
+  changeClassNameToMatch(openedCardElem, currentCardElem);
 
-    openedCards.length = 0;
-    if (deck.getElementsByClassName("match").length == 16) {
-        displayEndOfGame();
-    }
+  openedCards.length = 0;
+  if (deck.getElementsByClassName("match").length == 16) {
+    displayEndOfGame();
+  }
 }
 
-function changeClassNameMatch(openedCardElem, currentCardElem) {
-    openedCardElem.parentElement.classList.remove("open", "show");
-    currentCardElem.parentElement.classList.remove("open", "show");
-    openedCardElem.parentElement.className += " match"
-    currentCardElem.parentElement.className += " match"
+function changeClassNameToMatch(openedCardElem, currentCardElem) {
+  openedCardElem.parentElement.classList.remove("open", "show");
+  currentCardElem.parentElement.classList.remove("open", "show");
+  openedCardElem.parentElement.className += " match";
+  currentCardElem.parentElement.className += " match";
 }
 
 function displayEndOfGame() {
-    finishedGame.style.display = "block";
+  clearTimeout(time);
+  swal(
+    `Congrats! Star Rating: ${
+      document.getElementsByClassName("stars")[0].childElementCount
+    }
+        Time taken: ${document.getElementById("timer").innerHTML}`,
+    {
+      buttons: {
+        cancel: "No",
+        catch: {
+          text: "Play again!",
+          value: "playAgain"
+        }
+      }
+    }
+  ).then(value => {
+    switch (value) {
+      case "playAgain":
+        document.location.reload();
+        resetBoard();
+        break;
+
+      default:
+        break;
+    }
+  });
 }
 
 function resetBoard() {
-    finishedGame.style.display = "none";
-    cards = shuffle(Array.from(cards))
-    while (deck.firstChild) {
-        deck.removeChild(deck.firstChild);
-    }
-    for (const card of cards) {
-        card.classList.remove("match", "open", "show")
-        card.addEventListener("click", function() {
-            touchCard(card);
-        }, false);
-        deck.appendChild(card)
-    }
+  console.log(
+    "Number of stars is ",
+    document.getElementsByClassName("stars")[0].childElementCount
+  );
+  numMoves = 0;
+  cards = shuffle(Array.from(cards));
+  while (deck.firstChild) {
+    deck.removeChild(deck.firstChild);
+  }
+  for (const card of cards) {
+    card.classList.remove("match", "open", "show");
+    card.addEventListener(
+      "click",
+      function() {
+        touchCard(card);
+      },
+      false
+    );
+    deck.appendChild(card);
+  }
+  startTimer();
+  numMoves = 0;
+  movesElement.innerHTML = numMoves;
+}
+
+function startTimer() {
+  let s = performance.now();
+  document.getElementById("timer").innerHTML = s;
+  time = setTimeout(startTimer, 500);
 }

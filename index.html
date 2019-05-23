@@ -7,6 +7,7 @@
     <link rel="stylesheet prefetch" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.6.1/css/font-awesome.min.css">
     <link rel="stylesheet prefetch" href="https://fonts.googleapis.com/css?family=Coda">
     <link rel="stylesheet" href="css/app.css">
+    <link rel="stylesheet" href="./node_modules/sweetalert/dist/sweetalert.min.js">
 </head>
 <body>
 
@@ -23,8 +24,8 @@
         	</ul>
 
         	<span class="moves">0</span> Moves
-            <label id="finishedGame" hidden> 
-            All cards have matched!
+            <label id="timer"> 
+            All cards matched!
             </label>
             <div class="restart">
         		<i class="fa fa-repeat"></i>
@@ -83,8 +84,8 @@
         </ul>
     </div>
 
-    <script src="js/app.js">
-    </script>
+    <script src="js/app.js"></script>
+    <script src="./node_modules/sweetalert/dist/sweetalert.min.js"></script>
     <script>
     resetBoard();
 </script>
