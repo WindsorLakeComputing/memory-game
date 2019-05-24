@@ -20,19 +20,19 @@ restart[0].addEventListener("click", resetBoard);
 
 // Shuffle function from http://stackoverflow.com/a/2450976
 function shuffle(array) {
-  let currentIndex = array.length,
-    temporaryValue,
-    randomIndex;
+    let currentIndex = array.length,
+        temporaryValue,
+        randomIndex;
 
-  while (currentIndex !== 0) {
-    randomIndex = Math.floor(Math.random() * currentIndex);
-    currentIndex -= 1;
-    temporaryValue = array[currentIndex];
-    array[currentIndex] = array[randomIndex];
-    array[randomIndex] = temporaryValue;
-  }
+    while (currentIndex !== 0) {
+        randomIndex = Math.floor(Math.random() * currentIndex);
+        currentIndex -= 1;
+        temporaryValue = array[currentIndex];
+        array[currentIndex] = array[randomIndex];
+        array[randomIndex] = temporaryValue;
+    }
 
-  return array;
+    return array;
 }
 
 /*
@@ -47,57 +47,56 @@ function shuffle(array) {
  */
 
 function touchCard(card) {
-  let currentCardElem = card.getElementsByTagName("i")[0];
-  if (!currentCardElem.parentElement.className.includes("match")) {
-    if (openedCards.length == 0) {
-      flipFrstCard(card);
-    } else if (openedCards.length == 1) {
-      openedCard = flipScndCard();
-      let openedCardElem = openedCard.getElementsByTagName("i")[0];
-
-      if (checkCardsDifferentAndMatch(card, openedCard)) {
-        handleCardsMatch(card, openedCard);
-      } else {
-        card.className += " show open";
-        setTimeout(function() {
-          card.classList.remove("open", "show");
-          openedCard.classList.remove("open", "show");
-        }, 250);
-      }
+    let currentCardElem = card.getElementsByTagName("i")[0];
+    if (!currentCardElem.parentElement.className.includes("match")) {
+        if (openedCards.length == 0) {
+            flipFrstCard(card);
+        } else if (openedCards.length == 1) {
+            let openedCard = openedCards.pop();
+            let openedCardElem = openedCard.getElementsByTagName("i")[0];
+            if ((openedCardElem.getBoundingClientRect().x == currentCardElem.getBoundingClientRect().x) &&
+                (openedCardElem.getBoundingClientRect().y == currentCardElem.getBoundingClientRect().y)) {
+                openedCards.push(openedCard);
+                return;
+            }
+            flipScndCard();
+            if (checkCardsDifferentAndMatch(card, openedCard)) {
+                handleCardsMatch(card, openedCard);
+            } else {
+                card.className += " show open";
+                setTimeout(function() {
+                    card.classList.remove("open", "show");
+                    openedCard.classList.remove("open", "show");
+                }, 250);
+            }
+        }
     }
-  }
 }
 
 function flipFrstCard(card) {
-  openedCards.push(card);
-  card.className += " show open";
+    openedCards.push(card);
+    card.className += " show open";
 }
 
 function flipScndCard() {
-  openedCard = openedCards.pop();
-  numMoves += 1;
-  if (numMoves == 9 || numMoves == 16) {
-    let stars = document.getElementsByClassName("stars")[0];
-    stars.removeChild(stars.getElementsByTagName("li")[0]);
-  }
-  movesElement.innerHTML = numMoves;
-
-  return openedCard;
+    numMoves += 1;
+    if (numMoves == 9 || numMoves == 16) {
+        let stars = document.getElementsByClassName("stars")[0];
+        stars.removeChild(stars.getElementsByTagName("li")[0]);
+    }
+    movesElement.innerHTML = numMoves;
 }
 
 function checkCardsDifferentAndMatch(card, openedCard) {
-  let currentCardElem = card.getElementsByTagName("i")[0];
-  let openedCardElem = openedCard.getElementsByTagName("i")[0];
-
-  if (
-    openedCardElem.className == currentCardElem.className &&
-    (card.getBoundingClientRect().x != openedCard.getBoundingClientRect().x ||
-      card.getBoundingClientRect().y != openedCard.getBoundingClientRect().y)
-  ) {
-    return true;
-  } else {
-    return false;
-  }
+    let currentCardElem = card.getElementsByTagName("i")[0];
+    let openedCardElem = openedCard.getElementsByTagName("i")[0];
+    if (openedCardElem.className == currentCardElem.className &&
+        (card.getBoundingClientRect().x != openedCard.getBoundingClientRect().x ||
+            card.getBoundingClientRect().y != openedCard.getBoundingClientRect().y)) {
+        return true;
+    } else {
+        return false;
+    }
 }
 
 function handleCardsMatch(card, openedCard) {
@@ -113,69 +112,82 @@ function handleCardsMatch(card, openedCard) {
 }
 
 function changeClassNameToMatch(openedCardElem, currentCardElem) {
-  openedCardElem.parentElement.classList.remove("open", "show");
-  currentCardElem.parentElement.classList.remove("open", "show");
-  openedCardElem.parentElement.className += " match";
-  currentCardElem.parentElement.className += " match";
+    openedCardElem.parentElement.classList.remove("open", "show");
+    currentCardElem.parentElement.classList.remove("open", "show");
+    openedCardElem.parentElement.className += " match";
+    currentCardElem.parentElement.className += " match";
 }
 
 function displayEndOfGame() {
-  clearTimeout(time);
-  swal(
-    `Congrats! Star Rating: ${
+    clearTimeout(time);
+    swal(
+        `Congrats! You found all the cards. Star Rating: ${
       document.getElementsByClassName("stars")[0].childElementCount
     }
-        Time taken: ${document.getElementById("timer").innerHTML}`,
-    {
-      buttons: {
-        cancel: "No",
-        catch: {
-          text: "Play again!",
-          value: "playAgain"
+        Time taken: ${document.getElementById("timer").innerHTML}`, {
+            buttons: {
+                cancel: "No",
+                catch: {
+                    text: "Play again!",
+                    value: "playAgain"
+                }
+            }
         }
-      }
-    }
-  ).then(value => {
-    switch (value) {
-      case "playAgain":
-        document.location.reload();
-        resetBoard();
-        break;
+    ).then(value => {
+        switch (value) {
+            case "playAgain":
+                document.location.reload();
+                setupBoard();
+                break;
 
-      default:
-        break;
-    }
-  });
+            default:
+                break;
+        }
+    });
 }
 
-function resetBoard() {
-  console.log(
-    "Number of stars is ",
-    document.getElementsByClassName("stars")[0].childElementCount
-  );
-  numMoves = 0;
-  cards = shuffle(Array.from(cards));
-  while (deck.firstChild) {
-    deck.removeChild(deck.firstChild);
-  }
-  for (const card of cards) {
-    card.classList.remove("match", "open", "show");
-    card.addEventListener(
-      "click",
-      function() {
-        touchCard(card);
-      },
-      false
-    );
-    deck.appendChild(card);
-  }
-  startTimer();
-  numMoves = 0;
-  movesElement.innerHTML = numMoves;
+function resetBoard(){
+    document.location.reload();
+    setupBoard();
+}
+
+function setUpBoard() {
+    numMoves = 0;
+    cards = shuffle(Array.from(cards));
+    while (deck.firstChild) {
+        deck.removeChild(deck.firstChild);
+    }
+    for (const card of cards) {
+        card.classList.remove("match", "open", "show");
+        card.addEventListener(
+            "click",
+            function() {
+                touchCard(card);
+            },
+            false
+        );
+        deck.appendChild(card);
+    }
+    startTimer();
+    movesElement.innerHTML = numMoves;
 }
 
 function startTimer() {
-  let s = performance.now();
-  document.getElementById("timer").innerHTML = s;
-  time = setTimeout(startTimer, 500);
+    time = setTimeout(startTimer, 500);
+    minutesSeconds = formatTime()
+    seconds = minutesSeconds[0]
+    minutes = minutesSeconds[1]
+    setTimeBoard(minutes, seconds)
+}
+
+function formatTime() {
+    minutes = parseInt(time / 60, 10)
+    seconds = parseInt(time % 60, 10);
+    minutes = minutes < 10 ? "0" + minutes : minutes;
+    seconds = seconds < 10 ? "0" + seconds : seconds;
+    return [seconds, minutes]
+}
+
+function setTimeBoard(minutes, seconds) {
+    document.getElementById("timer").innerHTML = `Minutes: ${minutes} Seconds: ${seconds} `;
 }
