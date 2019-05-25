@@ -19,7 +19,7 @@ restart[0].addEventListener("click", resetBoard);
  */
 
 // Shuffle function from http://stackoverflow.com/a/2450976
-function shuffle(array) {
+var shuffle = (array) => {
     let currentIndex = array.length,
         temporaryValue,
         randomIndex;
@@ -46,7 +46,7 @@ function shuffle(array) {
  *    + if all cards have matched, display a message with the final score (put this functionality in another function that you call from this one)
  */
 
-function touchCard(card) {
+var touchCard = (card) => {
     let currentCardElem = card.getElementsByTagName("i")[0];
     if (!currentCardElem.parentElement.className.includes("match")) {
         if (openedCards.length == 0) {
@@ -73,12 +73,12 @@ function touchCard(card) {
     }
 }
 
-function flipFrstCard(card) {
+var flipFrstCard = (card) => {
     openedCards.push(card);
     card.className += " show open";
 }
 
-function flipScndCard() {
+var flipScndCard = () => {
     numMoves += 1;
     if (numMoves == 9 || numMoves == 16) {
         let stars = document.getElementsByClassName("stars")[0];
@@ -87,7 +87,7 @@ function flipScndCard() {
     movesElement.innerHTML = numMoves;
 }
 
-function checkCardsDifferentAndMatch(card, openedCard) {
+var checkCardsDifferentAndMatch = (card, openedCard) => {
     let currentCardElem = card.getElementsByTagName("i")[0];
     let openedCardElem = openedCard.getElementsByTagName("i")[0];
     if (openedCardElem.className == currentCardElem.className &&
@@ -99,7 +99,7 @@ function checkCardsDifferentAndMatch(card, openedCard) {
     }
 }
 
-function handleCardsMatch(card, openedCard) {
+var handleCardsMatch = (card, openedCard) => {
   let openedCardElem = openedCard.getElementsByTagName("i")[0];
   let currentCardElem = card.getElementsByTagName("i")[0];
   openedCard.removeEventListener("click", touchCard);
@@ -111,14 +111,14 @@ function handleCardsMatch(card, openedCard) {
   }
 }
 
-function changeClassNameToMatch(openedCardElem, currentCardElem) {
+var changeClassNameToMatch = (openedCardElem, currentCardElem) => {
     openedCardElem.parentElement.classList.remove("open", "show");
     currentCardElem.parentElement.classList.remove("open", "show");
     openedCardElem.parentElement.className += " match";
     currentCardElem.parentElement.className += " match";
 }
 
-function displayEndOfGame() {
+var displayEndOfGame = () => {
     clearTimeout(time);
     swal(
         `Congrats! You found all the cards. Star Rating: ${
@@ -146,12 +146,12 @@ function displayEndOfGame() {
     });
 }
 
-function resetBoard(){
+var resetBoard = () => {
     document.location.reload();
     setupBoard();
 }
 
-function setUpBoard() {
+var setUpBoard = () => {
     numMoves = 0;
     cards = shuffle(Array.from(cards));
     while (deck.firstChild) {
@@ -172,7 +172,7 @@ function setUpBoard() {
     movesElement.innerHTML = numMoves;
 }
 
-function startTimer() {
+var startTimer = () => {
     time = setTimeout(startTimer, 500);
     minutesSeconds = formatTime()
     seconds = minutesSeconds[0]
@@ -180,7 +180,7 @@ function startTimer() {
     setTimeBoard(minutes, seconds)
 }
 
-function formatTime() {
+var formatTime = () => {
     minutes = parseInt(time / 60, 10)
     seconds = parseInt(time % 60, 10);
     minutes = minutes < 10 ? "0" + minutes : minutes;
@@ -188,6 +188,6 @@ function formatTime() {
     return [seconds, minutes]
 }
 
-function setTimeBoard(minutes, seconds) {
+var setTimeBoard = (minutes, seconds) => {
     document.getElementById("timer").innerHTML = `Minutes: ${minutes} Seconds: ${seconds} `;
 }
